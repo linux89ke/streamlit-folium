@@ -55,7 +55,7 @@ def main():
             max_mb = file_size / (1024 * 1024)
         else:
             max_mb = 200  # Default maximum value if file size is unknown
-        size_per_file = st.slider("Choose size per file (MB):", min_value=1, max_value=max_mb, step=1, value=200)
+        size_per_file = st.slider("Choose size per file (MB):", min_value=1.0, max_value=max_mb, step=1.0, value=200.0)
     else:
         size_per_file = None
         num_files = st.slider("Choose number of files:", min_value=1, max_value=num_rows)
@@ -73,4 +73,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-ChatGPT
