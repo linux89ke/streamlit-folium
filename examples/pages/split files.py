@@ -6,27 +6,30 @@ import math
 def get_file_size(file_path):
     file_info = st.file_uploader("Upload file", type=["xlsx", "csv"])
     if file_info is not None:
-        return len(file_info.getvalue()), file_info.size
+        num_rows = len(file_info.getvalue())
+        file_size = file_info.size
+        return num_rows, file_size
     else:
         return None, None
 
 # Function to split DataFrame and write to files
-def split_and_write_files(df, num_rows, file_size, num_files):
-    if num_files is not None:
-        size_per_file = math.ceil(num_rows / num_files)
-        st.write(f"Splitting file into {num_files} files with approximately {size_per_file} rows each.")
-        for i in range(num_files):
+def split_and_write_files(df, num_rows, split_option, size_per_file, num_files):
+    if split_option == "File Size":
+        num_files = None
+        size_per_file = size_per_file * 1024 * 1024  # Convert MB to bytes
+        st.write(f"Splitting file into {num_rows // size_per_file} files with approximately {size_per_file} bytes each.")
+        for i in range(num_rows // size_per_file):
             start_index = i * size_per_file
             end_index = min((i + 1) * size_per_file, num_rows)
             split_df = df.iloc[start_index:end_index]
             split_df.to_excel(f"split_file_{i+1}.xlsx", index=False)
         st.write("Files split successfully.")
-    elif file_size is not None:
-        num_files = math.ceil(file_size / file_size_per_file)
-        st.write(f"Splitting file into {num_files} files with approximately {file_size_per_file} rows each.")
+    else:
+        size_per_file = None
+        st.write(f"Splitting file into {num_files} files.")
         for i in range(num_files):
-            start_index = i * file_size_per_file
-            end_index = min((i + 1) * file_size_per_file, num_rows)
+            start_index = i * (num_rows // num_files)
+            end_index = min((i + 1) * (num_rows // num_files), num_rows)
             split_df = df.iloc[start_index:end_index]
             split_df.to_excel(f"split_file_{i+1}.xlsx", index=False)
         st.write("Files split successfully.")
@@ -40,7 +43,7 @@ def main():
     num_rows, file_size = get_file_size("input_file")
     if num_rows is not None and file_size is not None:
         st.write(f"Number of rows: {num_rows}")
-        st.write(f"Size of file: {file_size} bytes")
+        st.write(f"Size of file: {file_size / 1024:.2f} KB")
 
     # Choose split method
     st.write("Choose how you want to split the file:")
@@ -48,9 +51,9 @@ def main():
 
     if split_option == "File Size":
         num_files = None
-        file_size_per_file = st.slider("Choose size per file (rows):", min_value=1, max_value=num_rows)
+        size_per_file = st.slider("Choose size per file (MB):", min_value=1, max_value=file_size / (1024 * 1024))
     else:
-        file_size_per_file = None
+        size_per_file = None
         num_files = st.slider("Choose number of files:", min_value=1, max_value=num_rows)
 
     # Split and write files
@@ -62,7 +65,7 @@ def main():
                     df = pd.read_excel(file_info)
                 elif file_info.type == "text/csv":
                     df = pd.read_csv(file_info)
-                split_and_write_files(df, num_rows, file_size, num_files)
+                split_and_write_files(df, num_rows, split_option, size_per_file, num_files)
 
 if __name__ == "__main__":
     main()
