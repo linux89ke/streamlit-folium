@@ -17,11 +17,11 @@ def split_and_write_files(df, num_rows, split_option, size_per_file, num_files):
     if split_option == "File Size":
         num_files = None
         size_per_file = size_per_file * 1024 * 1024  # Convert MB to bytes
-        st.write(f"Splitting file into {num_rows // size_per_file} files with approximately {size_per_file} bytes each.")
-        for i in range(num_rows // size_per_file):
-            start_index = i * size_per_file
-            end_index = min((i + 1) * size_per_file, num_rows)
-            split_df = df.iloc[start_index:end_index]
+        st.write(f"Splitting file into {math.ceil(num_rows / (size_per_file / 1024))} files with approximately {size_per_file} bytes each.")
+        for i in range(math.ceil(num_rows / (size_per_file / 1024))):
+            start_index = i * (size_per_file / 1024)
+            end_index = min((i + 1) * (size_per_file / 1024), num_rows)
+            split_df = df.iloc[int(start_index):int(end_index)]
             split_df.to_excel(f"split_file_{i+1}.xlsx", index=False)
         st.write("Files split successfully.")
     else:
@@ -51,7 +51,11 @@ def main():
 
     if split_option == "File Size":
         num_files = None
-        size_per_file = st.slider("Choose size per file (MB):", min_value=1, max_value=file_size / (1024 * 1024))
+        if file_size is not None:
+            max_mb = file_size / (1024 * 1024)
+        else:
+            max_mb = 100  # Default maximum value if file size is unknown
+        size_per_file = st.slider("Choose size per file (MB):", min_value=1, max_value=max_mb)
     else:
         size_per_file = None
         num_files = st.slider("Choose number of files:", min_value=1, max_value=num_rows)
