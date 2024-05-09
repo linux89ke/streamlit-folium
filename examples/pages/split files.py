@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 import math
 
@@ -38,9 +37,6 @@ def split_and_write_files(df, num_rows, split_option, size_per_file, num_files):
 def main():
     st.title("Split Excel or CSV File")
 
-    # Set maximum upload size
-    st.set_option('server.maxUploadSize', 1000)  # Specify the maximum file upload size in megabytes (MB)
-
     # Upload file and display file info
     st.write("Upload your Excel or CSV file.")
     num_rows, file_size = get_file_size("input_file")
@@ -76,3 +72,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+ChatGPT
