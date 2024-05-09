@@ -51,7 +51,8 @@ def main():
 
     if split_option == "File Size":
         num_files = None
-        size_per_file = st.slider("Choose size per file (MB):", min_value=1, max_value=1000, step=1, value=200)
+        max_mb = file_size / (1024 * 1024) if file_size is not None else 1000  # Default maximum value if file size is unknown
+        size_per_file = st.slider("Choose size per file (MB):", min_value=1, max_value=max_mb, step=1, value=200)
     else:
         size_per_file = None
         num_files = st.slider("Choose number of files:", min_value=1, max_value=num_rows)
